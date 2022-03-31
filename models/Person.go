@@ -1,49 +1,52 @@
 package models
 
 import (
-	db "goweb/database"
+	"github.com/jinzhu/gorm"
+	sql "goweb/database"
 )
 
 type Person struct {
-	Id        int    `json:"id" form:"id"`
+	gorm.Model
+	Id        int    `gorm:"primary_key" json:"id" form:"id"`
 	FirstName string `json:"first_name" form:"first_name"`
 	LastName  string `json:"last_name" form:"last_name"`
 }
 
 func (p *Person) AddPerson() (id int64, err error) {
-	rs, err := db.SqlDB.Exec("INSERT INTO person(first_name, last_name) VALUES (?, ?)", p.FirstName, p.LastName)
-	if err != nil {
-		return
-	}
-	id, err = rs.LastInsertId()
+	rs := sql.GetDb().Create(p)
+	//rs, err := db.SqlDB.Exec("INSERT INTO person(first_name, last_name) VALUES (?, ?)", p.FirstName, p.LastName)
+	println(rs.Value)
 	return
 }
 
 func (p *Person) ModPerson() (ra int64, err error) {
-	rs, err := db.SqlDB.Exec("UPDATE person SET first_name = ?, last_name = ? WHERE id = ?", p.FirstName, p.LastName, p.Id)
+	rs := sql.GetDb().Exec("UPDATE person SET first_name = ?, last_name = ? WHERE id = ?", p.FirstName, p.LastName, p.Id)
 	if err != nil {
 		return
 	}
-	ra, err = rs.RowsAffected()
+	ra = rs.RowsAffected
 	return
 }
 
 func (p *Person) DelPerson() (ra int64, err error) {
-	rs, err := db.SqlDB.Exec("DELETE FROM person WHERE id = ?", p.Id)
+	rs := sql.GetDb().Exec("DELETE FROM person WHERE id = ?", p.Id)
 	if err != nil {
 		return
 	}
-	ra, err = rs.RowsAffected()
+	ra = rs.RowsAffected
 	return
 }
 
 func (p *Person) GetPersons() (persons []Person, err error) {
 	persons = make([]Person, 0)
-	rows, err := db.SqlDB.Query("SELECT id, first_name, last_name FROM person")
+	rows, err := sql.GetDb().Raw("SELECT id, first_name, last_name FROM person").Rows()
+	println(err)
 	defer rows.Close()
 
 	if err != nil {
 		return
+	} else {
+		println(err)
 	}
 
 	for rows.Next() {
@@ -53,16 +56,21 @@ func (p *Person) GetPersons() (persons []Person, err error) {
 	}
 	if err = rows.Err(); err != nil {
 		return
+	} else {
+		println(err)
 	}
 	return
 }
 
 // get person
 func (p *Person) GetPerson() (err error) {
-	db.SqlDB.QueryRow("SELECT id, first_name, last_name FROM person WHERE id=?", p.Id).Scan(
-		&p.Id,
-		&p.FirstName,
-		&p.LastName,
-	)
+	res := sql.GetDb().Raw("SELECT id, first_name, last_name FROM person WHERE id=?", p.Id)
+	scan := res.Scan(&p)
+	println(scan)
+	//res.Scan(
+	//	&p.Id,
+	//	&p.FirstName,
+	//	&p.LastName,
+	//)
 	return
 }
