@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"gin-web/common/global"
 	"gin-web/common/result"
 	"gin-web/database/sqlgorm"
@@ -23,10 +22,13 @@ func List(c *gin.Context) {
 func Delete(c *gin.Context) {
 	user := models.User{}
 	id := c.Param("id")
-	fmt.Println(id)
 	// 获取全部记录
 	affected := sqlgorm.JdbcTemplate.Model(user).Where("id = ?", id).Delete(&user).RowsAffected
-	result.Success(affected, c)
+	if affected == 1 {
+		result.Success(affected, c)
+	} else {
+		result.Fail(c)
+	}
 }
 
 // 保存或者修改用户

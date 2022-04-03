@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	SUCCESS int = http.StatusOK
-	FAIL    int = http.StatusInternalServerError
+	SUCCESS int = 1000
+	FAIL    int = 2000
 
 	SucceedMsg string = "操作成功！"
 	FailedMsg  string = "操作失败！"
