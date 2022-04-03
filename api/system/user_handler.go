@@ -19,17 +19,18 @@ func List(c *gin.Context) {
 	result.Success(&users, c)
 }
 
-// 查询用户列表
+// 删除用户
 func Delete(c *gin.Context) {
+	user := models.User{}
 	id := c.Param("id")
 	fmt.Println(id)
 	// 获取全部记录
-	affected := sqlgorm.JdbcTemplate.Where("id = ?", id).Delete(&models.User{}).RowsAffected
+	affected := sqlgorm.JdbcTemplate.Model(user).Where("id = ?", id).Delete(&user).RowsAffected
 	result.Success(affected, c)
 }
 
-// 查询用户列表
-func Add(c *gin.Context) {
+// 保存或者修改用户
+func SaveOrUpdate(c *gin.Context) {
 	user := models.User{}
 	err := c.Bind(&user)
 	if err != nil {
@@ -37,7 +38,13 @@ func Add(c *gin.Context) {
 		global.GVA_LOG.Error("user对象json解析异常", zap.Error(err))
 		return
 	}
-	// 保存用户
-	affected := sqlgorm.JdbcTemplate.Save(&user).RowsAffected
-	result.Success(affected, c)
+	//var affected int64
+	if &user.ID == nil || user.ID == 0 {
+		// 保存用户
+		sqlgorm.JdbcTemplate.Model(user).Save(&user)
+	} else {
+		// 修改用户
+		sqlgorm.JdbcTemplate.Model(user).Update(&user)
+	}
+	result.Success(&user.ID, c)
 }

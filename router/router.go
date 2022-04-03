@@ -23,7 +23,7 @@ func router(group *gin.RouterGroup) {
 		userRouter.GET("/list", userApi.List)
 		// 删除用户
 		userRouter.DELETE("/:id", userApi.Delete)
-		// 添加用户
-		userRouter.POST("/", userApi.Add)
+		// 修改或保存用户
+		userRouter.POST("/", userApi.SaveOrUpdate)
 	}
 }
