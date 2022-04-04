@@ -12,14 +12,13 @@ import (
 
 // 查询用户列表
 func List(c *gin.Context) {
-	var list []models.User
-
-	var page utils.PageInfo
-
+	var (
+		list []models.User
+		page utils.PageInfo
+	)
 	// 获取全部记录
 	sqlgorm.JdbcTemplate.Model(models.User{}).Count(&page.TotalCount)
 	page.Records = sqlgorm.JdbcTemplate.Model(models.User{}).Scopes(utils.Paginate(&page, c)).Find(&list).Value
-
 	result.Success(page, c)
 }
 
