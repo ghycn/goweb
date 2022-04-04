@@ -5,17 +5,22 @@ import (
 	"gin-web/common/result"
 	"gin-web/database/sqlgorm"
 	"gin-web/models"
+	"gin-web/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 // 查询用户列表
 func List(c *gin.Context) {
+	var list []models.User
 
-	var users []models.User
+	var page utils.PageInfo
+
 	// 获取全部记录
-	sqlgorm.JdbcTemplate.Find(&users)
-	result.Success(&users, c)
+	sqlgorm.JdbcTemplate.Model(models.User{}).Count(&page.TotalCount)
+	page.Records = sqlgorm.JdbcTemplate.Model(models.User{}).Scopes(utils.Paginate(&page, c)).Find(&list).Value
+
+	result.Success(page, c)
 }
 
 // 删除用户

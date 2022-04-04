@@ -49,9 +49,9 @@ func NewConfig() *Config {
 // 读取配置映射到结构体
 func (config *Config) ReadConfig() *Config {
 
-	file, err := ioutil.ReadFile("server/config.yml")
+	file, err := ioutil.ReadFile("config.yml")
 	if err != nil {
-		log.Fatalln("读取文件config.yml发生错误")
+		log.Fatalln("读取文件config.yml发生错误", err)
 		return nil
 	}
 	if yaml.Unmarshal(file, config) != nil {
@@ -62,7 +62,7 @@ func (config *Config) ReadConfig() *Config {
 }
 
 func ReadBanner(name string) {
-	file, err := ioutil.ReadFile("server/"+name)
+	file, err := ioutil.ReadFile(name)
 	if err != nil {
 		log.Panicln("读取Banner文件失败")
 	}
